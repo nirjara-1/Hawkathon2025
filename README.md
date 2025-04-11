@@ -1,5 +1,7 @@
 # Hawkathon2025
 Threaded: Connected by Kindness 
+
+
 🧵 Problem: Mismatched Giving in Communities
 Millions of people donate clothes, food, and supplies yearly to help others, yet many of these donations never reach the people who need them most or arrive too late to make a meaningful difference. This disconnect is more than inconvenient — it's systemic.
 
