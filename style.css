@@ -1,0 +1,72 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    color: #333;
+  }
+  
+  header {
+    background-color: #ffa07a;
+    padding: 1rem;
+    text-align: center;
+    color: white;
+  }
+  
+  header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+  }
+  
+  .tagline {
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+  
+  nav a {
+    margin: 0 1rem;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  section {
+    padding: 2rem;
+    max-width: 700px;
+    margin: auto;
+  }
+  
+  section h2 {
+    color: #ff6f61;
+  }
+  
+  input[type="file"], input[type="text"], input[type="password"] {
+    display: block;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  button {
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  button:hover {
+    background-color: #ff3b2f;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #ffa07a;
+    color: white;
+  }
+
+  
