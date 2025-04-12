@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donate Item – Threaded</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background-color: #fffaf6;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #ff8a65;
+      color: white;
+      transition: width 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 2rem;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+    }
+
+    .sidebar .toggle-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar h2 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed h2 {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-item {
+      text-decoration: none;
+      color: white;
+      width: 100%;
+      padding: 0.8rem 1rem;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      transition: background 0.3s;
+    }
+
+    .nav-item span {
+      margin-left: 10px;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar.collapsed .nav-item span {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-item:hover {
+      background-color: #ff7043;
+    }
+
+    .main {
+      flex: 1;
+      padding: 3rem;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .upload-card {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      }
+
+    .upload-card h3 {
+      color: #ff7043;
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .custom-upload {
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      padding: 2rem;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+
+    .custom-upload:hover {
+      background-color: #fff0e6;
+      border-color: #ff7043;
+    }
+
+    .custom-upload img {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.5rem;
+    }
+
+    .custom-upload p {
+      margin: 0;
+      font-size: 1rem;
+      color: #666;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .pickup-location {
+      display: none;
+    }
+
+    .submit-btn {
+      margin-top: 1rem;
+      background-color: #ff7043;
+      color: white;
+      padding: 1rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 30px;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .submit-btn:hover {
+      background-color: #ff5722;
+    }
+
+    #preview {
+      margin: 1rem auto 0 auto;
+      max-width: 250px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: none;
+      display: block;
+    }
+
+    #result {
+      font-size: 1rem;
+      color: #444;
+      margin-top: 1.5rem;
+      line-height: 1.4;
+    }
+
+
+    .quote {
+      margin-top: 2rem;
+      color: #999;
+      font-style: italic;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar" id="sidebar">
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    <h2>Threaded</h2>
+    <a href="#" class="nav-item">📤 <span>Upload</span></a>
+    <a href="#" class="nav-item">📜 <span>My Donations</span></a>
+    <a href="#" class="nav-item">⚙️ <span>Settings</span></a>
+    <a href="#" class="nav-item">🚪 <span>Logout</span></a>
+  </div>
+
+  <div class="main">
+    <div class="upload-card">
+      <h3>Upload Your Item</h3>
+
+      <div id="uploadPlaceholder" class="custom-upload" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+        <img src="https://img.icons8.com/ios-filled/50/upload.png" alt="Upload Icon"/>
+        <p>Click or drag an image here</p>
+      </div>
+      <input type="file" id="itemUpload" name="itemUpload" accept="image/*" required style="display: none;" />
+      <img id="preview" />
+      <p id="result">Upload an image to analyze</p>
+
+      <label for="method">Pickup or Drop-off?</label>
+      <select id="method" name="method" onchange="handlePickup(this.value)" required>
+        <option value="">-- Please select --</option>
+        <option value="dropoff">I will drop off</option>
+        <option value="pickup">Please pick up</option>
+      </select>
+
+      <div id="pickupLocation" class="pickup-location">
+        <label for="address">Pickup Address</label>
+        <input type="text" id="address" name="address" placeholder="Street, City, ZIP" />
+      </div>
+
+      <button class="submit-btn" onclick="submitDonation()">Submit Donation</button>
+
+      <!-- Success Message -->
+      <div id="successMessage" style="display: none; background-color: #dff0d8; color: #3c763d; padding: 1rem; margin-top: 1rem; border-radius: 8px; font-weight: 600;">
+        🎉 Donation submitted successfully!
+      </div>
+
+      <div class="quote">“The world changes when kindness becomes action.”</div>
+    </div>
+  </div>
+
+  <script>
+    let model;
+
+    window.onload = async () => {
+      model = await mobilenet.load();
+      console.log("✅ MobileNet loaded");
+    };
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+
+    function handlePickup(value) {
+      const locationField = document.getElementById("pickupLocation");
+      locationField.style.display = value === "pickup" ? "block" : "none";
+    }
+
+    function triggerFileInput() {
+      document.getElementById('itemUpload').click();
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        handleImage(file);
+      }
+    }
+
+    document.getElementById('itemUpload').addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        handleImage(file);
+      }
+    });
+
+    function handleImage(file) {
+      const preview = document.getElementById('preview');
+      const result = document.getElementById('result');
+      const placeholder = document.getElementById('uploadPlaceholder');
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        placeholder.style.display = 'none';
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+
+        preview.onload = async () => {
+          result.textContent = "🔍 Analyzing item...";
+          try {
+            const predictions = await model.classify(preview);
+            if (predictions.length > 0) {
+              const top = predictions[0];
+              result.innerHTML = `
+                🧠 <span style="color:#444">This looks like:</span> <strong>${top.className}</strong><br>
+                <span style="font-size: 0.95rem; color: #777;">(Confidence: ${(top.probability * 100).toFixed(1)}%)</span>
+              `;
+            } else {
+              result.textContent = "⚠️ Unable to identify the item.";
+            }
+          } catch (err) {
+            result.textContent = "❌ Error during prediction.";
+            console.error(err);
+          }
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitDonation() {
+      const fileInput = document.getElementById('itemUpload');
+      const method = document.getElementById('method').value;
+      const addressField = document.getElementById('address');
+      const thankYouMessage = document.getElementById('thankYouMessage');
+  
+      if (!fileInput.files.length) {
+        alert("Please upload an image of your item.");
+        return;
+      }
+  
+      if (method === "") {
+        alert("Please select a donation method.");
+        return;
+      }
+  
+      if (method === "pickup" && (!addressField.value || addressField.value.trim() === "")) {
+        alert("Please provide a pickup address.");
+        return;
+      }
+  
+      const successBox = document.getElementById('successMessage');
+      successBox.style.display = 'block';
+
+      setTimeout(() => {
+        window.location.href = "thankyou.html";
+      }, 1000); // 1 second
+
+
+
+      document.getElementById('thankYouMessage').style.display = 'block'; // Show thank you message
+  
+      // Reset form
+      fileInput.value = '';
+      document.getElementById('preview').style.display = 'none';
+      document.getElementById('result').textContent = 'Upload an image to analyze';
+      document.getElementById('method').value = '';
+      addressField.value = '';
+      document.getElementById('pickupLocation').style.display = 'none';
+      document.getElementById('uploadPlaceholder').style.display = 'block'; // Show upload placeholder
+    }
+  </script>
+</body>
+</html>
