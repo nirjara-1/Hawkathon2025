@@ -178,15 +178,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       display: none;
       display: block;
-      opacity: 0;
-      transition: opacity 0.4s ease;
     }
-
-    
-    #preview.show {
-      opacity: 1;
-    }
-
 
     #result {
       font-size: 1rem;
@@ -300,7 +292,6 @@
         placeholder.style.display = 'none';
         preview.src = e.target.result;
         preview.style.display = 'block';
-        preview.classList.add('show'); // Add this line to apply the fade-in effect
 
         preview.onload = async () => {
           result.textContent = "🔍 Analyzing item...";
