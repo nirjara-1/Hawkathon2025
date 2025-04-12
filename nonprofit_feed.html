@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donation Items - Threaded</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #fffaf6;
+      margin: 0;
+    }
+
+    header {
+      background-color: #ff8a65;
+      padding: 2rem;
+      text-align: center;
+      color: white;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-style: italic;
+      margin-top: 0.25rem;
+      font-weight: 300;
+    }
+
+    .topnav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: white;
+      border-bottom: 1px solid #eee;
+    }
+
+    .search-container {
+      flex-grow: 1;
+      margin: 0 1rem;
+      position: relative;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 0.6rem 2.5rem 0.6rem 1rem;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .search-container::after {
+      content: '🔍';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      color: #ff8a65;
+    }
+
+    .notification-icon {
+      width: 36px;
+      height: 36px;
+      background-color: #ff8a65;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notification-icon img {
+      width: 20px;
+      height: 20px;
+      filter: invert(1);
+    }
+
+    .nav-links-bar {
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .nav-links-bar a {
+      margin: 0 1rem;
+      color: #ff8a65;
+      font-weight: 500;
+      text-decoration: none;
+      padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .nav-links-bar a:hover {
+      border-bottom: 2px solid #ff8a65;
+    }
+
+    .donation-section {
+      padding: 2rem;
+    }
+
+    .donation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .donation-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: 0.3s;
+    }
+
+    .donation-card:hover {
+      box-shadow: 0 6px 18px rgba(11, 11, 11, 0.1);
+    }
+
+    .donation-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .donation-card h4 {
+      font-size: 1.1rem;
+      margin-top: 0.75rem;
+      color: #ff8a65;
+    }
+
+    .donation-card p {
+      font-size: 0.9rem;
+      color: #444;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .donation-card button {
+      background-color: #ff8a65;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.2s;
+    }
+
+    .donation-card button:hover {
+      background-color: #ff7043;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background-color: #ffe0b2;
+      font-size: 0.95rem;
+      color: #ff8a65;
+      font-family:cursive;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Threaded</h1>
+    <p>Connected by Kindness</p>
+  </header>
+
+  <div class="nav-links-bar">
+    <a href="#">Home</a>
+    <a href="#">My Requests</a>
+    <a href="#">Our Stories</a>
+    <a href="#">About Us</a>
+  </div>
+
+  <div class="topnav">
+    <div class="search-container">
+      <input type="text" placeholder="Search donation items...">
+    </div>
+    <div class="notification-icon">
+      <img src="https://img.icons8.com/ios-filled/50/000000/appointment-reminders.png" alt="Notifications" />
+    </div>
+  </div>
+
+  <section class="donation-section">
+    <h2 style="margin-bottom: 1rem; color: #ff8a65;">Donation Items</h2>
+    <div class="donation-grid">
+      <div class="donation-card">
+        <img src="images/jacket.jpeg" alt="Item Image">
+        <h4>Winter Jackets</h4>
+        <p>Warm jackets donated for the winter season. Great for families in need.</p>
+        <button>Request Item</button>
+      </div>
+
+      <div class="donation-card">
+        <img src="images/backpack.webp" alt="Item Image">
+        <h4>Backpacks for Students</h4>
+        <p>Gently used backpacks to help students start their school year right.</p>
+        <button>Request Item</button>
+      </div>
+
+      <div class="donation-card">
+        <img src="https://via.placeholder.com/250x160" alt="Item Image">
+        <h4>Kitchen Essentials</h4>
+        <p>Essential utensils and cookware perfect for shelters and new homes.</p>
+        <button>Request Item</button>
+      </div>
+
+      <div class="donation-card">
+        <img src="https://via.placeholder.com/250x160" alt="Item Image">
+        <h4>Children's Books</h4>
+        <p>Books for children ages 3–10 to support early learning and education.</p>
+        <button>Request Item</button>
+      </div>
+
+      <div class="donation-card">
+        <img src="https://via.placeholder.com/250x160" alt="Item Image">
+        <h4>Children's Books</h4>
+        <p>Books for children ages 3–10 to support early learning and education.</p>
+        <button>Request Item</button>
+      </div>
+
+      <div class="donation-card">
+        <img src="https://via.placeholder.com/250x160" alt="Item Image">
+        <h4>Children's Books</h4>
+        <p>Books for children ages 3–10 to support early learning and education.</p>
+        <button>Request Item</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    “Made with love for Hawkathon2025”
+  </footer>
+
+</body>
+</html>
