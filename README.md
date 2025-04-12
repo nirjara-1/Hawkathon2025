@@ -15,7 +15,7 @@ Millions of people donate clothes, food, and supplies yearly to help others, yet
 🥫 30-40% of food in the U.S. is wasted, even while 42 million people struggle with hunger.
 (Source: USDA, Feeding America)
 
-🏠 Nonprofits report that more than half of their received donations are either irrelevant, unsorted, or unusable, increasing the sorting workload and reducing efficiency.
+🏠 Nonprofits report that more than half of their received donations are irrelevant, unsorted, or unusable, increasing the sorting workload and reducing efficiency.
 (Source: Charity Navigator, informal nonprofit surveys)
 
 This reveals a major gap: generosity exists, but the system to direct it efficiently is broken.
@@ -32,6 +32,6 @@ With features like:
 
 🔁 Real-Time Dashboards: Show current local needs and highlight where your donation goes
 
-✅ NGO Verification: Ensures only trusted nonprofits can request or accept donations
+✅ Nonprofit Organization Verification: Ensures only trusted nonprofits can request or accept donations
 
 With Threaded, giving becomes thoughtful, direct, and deeply impactful.
