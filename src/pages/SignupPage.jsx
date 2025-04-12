@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { doc, setDoc ,getDoc} from "firebase/firestore";
+import { auth, db } from '../firebase';
+import toast, { Toaster } from 'react-hot-toast'; // Import toast and Toaster
 import Logo from '../components/Logo';
+import { Link } from 'react-router-dom';
+
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -22,6 +26,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -29,100 +34,127 @@ export default function SignupPage() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
-      
-      // After user creation, save user data to Firestore
-      const userRef = doc(db, "users", userCredential.user.uid);
-      await setDoc(userRef, {
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
         name: form.name,
         email: form.email,
-        role: form.role, // 🔥 this line
+        role: form.role,
         createdAt: new Date(),
       });
 
-      navigate('/app');
+      toast.success('Account created successfully!');
+
+      // Redirect based on role
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        setError("Account created but user role not found.");
+        return;
+      }
+
+      const userRole = userSnap.data().role;
+
+      if (userRole === 'donor') {
+        navigate('/donor-dashboard');
+      } else if (userRole === 'nonprofit') {
+        navigate('/nonprofit-dashboard');
+      } else {
+        setError("Unknown role. Please contact support.");
+      }
+
     } catch (err) {
-      setError(err.message);
+      console.error("Signup error:", err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError("This email is already registered.");
+      } else {
+        setError("Signup failed: " + err.message);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-indigo-50">
-      <header className="flex justify-between items-center p-6 bg-white shadow-md">
-        <Logo />
-        <Link to="/login" className="text-indigo-700 font-medium hover:underline">
-          Already have an account? Log in
-        </Link>
-      </header>
+    <>
+      <Toaster /> {/* Add Toaster component */}
+      <div className="min-h-screen flex flex-col bg-indigo-50">
+        <header className="flex justify-between items-center p-6 bg-white shadow-md">
+          <Logo />
+          <Link to="/login" className="text-indigo-700 font-medium hover:underline">
+            Already have an account? Log in
+          </Link>
+        </header>
 
-      <main className="flex-grow flex items-center justify-center px-4">
-        <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-          <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">Create an Account</h2>
+        <main className="flex-grow flex items-center justify-center px-4">
+          <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">Create an Account</h2>
 
-          {error && (
-            <div className="text-red-600 text-sm mb-4 text-center">{error}</div>
-          )}
+            {error && (
+              <div className="text-red-600 text-sm mb-4 text-center">{error}</div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={form.name}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            />
-            <div className="flex flex-col space-y-2">
-              <label className="font-medium text-sm text-gray-700">I am a:</label>
-              <select
-                name="role"
-                value={form.role}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                name="name"
+                placeholder="Full Name"
+                value={form.name}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              >
-                <option value="">Select role</option>
-                <option value="donor">Donor</option>
-                <option value="nonprofit">Nonprofit</option>
-              </select>
-            </div>
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
+              <div className="flex flex-col space-y-2">
+                <label className="font-medium text-sm text-gray-700">I am a:</label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                >
+                  <option value="">Select role</option>
+                  <option value="donor">Donor</option>
+                  <option value="nonprofit">Nonprofit</option> 
+                </select>
+              </div>
 
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
-            >
-              Sign Up
-            </button>
-          </form>
-        </div>
-      </main>
-    </div>
+              <button
+                type="submit"
+                className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+              >
+                Sign Up
+              </button>
+            </form>
+          </div>
+        </main>
+      </div>
+    </>
   );
 }

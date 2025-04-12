@@ -15,7 +15,7 @@ export default function ImageAnalyzer() {
     await uploadBytes(storageRef, file);
     const imageUrl = await getDownloadURL(storageRef);
 
-    const res = await fetch("https://us-central1-YOUR_PROJECT.cloudfunctions.net/analyzeImage", {
+    const res = await fetch("https://us-central1-threaded-90eb0.cloudfunctions.net/analyzeImage", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ imageUrl })

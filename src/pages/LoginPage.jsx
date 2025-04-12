@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 import Logo from '../components/Logo';
 
 export default function LoginPage() {
@@ -17,19 +18,37 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        await signInWithEmailAndPassword(auth, form.email, form.password);
-        navigate('/app');
-      } catch (err) {
-        console.error("Login error:", err.code);
-        if (
-          err.code === 'auth/user-not-found' ||
-          err.code === 'auth/wrong-password'
-        ) {
-          setError("Incorrect email or password.");
-        } else {
-          setError("Something went wrong. Please try again.");
-        }
+      const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
+      const user = userCredential.user;
+
+      // ✅ Fetch role from Firestore
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        setError("User data not found.");
+        return;
       }
+
+      const role = userSnap.data().role;
+      if (role === 'donor') {
+        navigate('/donor-dashboard');
+      } else if (role === 'nonprofit') {
+        navigate('/nonprofit-dashboard');
+      } else {
+        setError("Unknown user role. Contact support.");
+      }
+    } catch (err) {
+      console.error("Login error:", err.code);
+      if (
+        err.code === 'auth/user-not-found' ||
+        err.code === 'auth/wrong-password'
+      ) {
+        setError("Incorrect email or password.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    }
   };
 
   return (
