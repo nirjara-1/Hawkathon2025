@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
   <style>
+    /* Reuse existing CSS from your original post */
     * {
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
@@ -99,7 +100,7 @@
       max-width: 600px;
       width: 100%;
       text-align: center;
-      }
+    }
 
     .upload-card h3 {
       color: #ff7043;
@@ -177,7 +178,6 @@
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       display: none;
-      display: block;
     }
 
     #result {
@@ -187,12 +187,21 @@
       line-height: 1.4;
     }
 
-
     .quote {
       margin-top: 2rem;
       color: #999;
       font-style: italic;
       font-size: 0.95rem;
+    }
+
+    #successMessage {
+      display: none;
+      background-color: #dff0d8;
+      color: #3c763d;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -200,10 +209,10 @@
   <div class="sidebar" id="sidebar">
     <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
     <h2>Threaded</h2>
-    <a href="#" class="nav-item">📤 <span>Upload</span></a>
-    <a href="#" class="nav-item">📜 <span>My Donations</span></a>
+    <a href="donorfeed.html" class="nav-item">📤 <span>Upload</span></a>
+    <a href="my-donations.html" class="nav-item">📜 <span>My Donations</span></a>
     <a href="#" class="nav-item">⚙️ <span>Settings</span></a>
-    <a href="#" class="nav-item">🚪 <span>Logout</span></a>
+    <a href="login.html" class="nav-item">🚪 <span>Logout</span></a>
   </div>
 
   <div class="main">
@@ -214,12 +223,13 @@
         <img src="https://img.icons8.com/ios-filled/50/upload.png" alt="Upload Icon"/>
         <p>Click or drag an image here</p>
       </div>
-      <input type="file" id="itemUpload" name="itemUpload" accept="image/*" required style="display: none;" />
+
+      <input type="file" id="itemUpload" accept="image/*" />
       <img id="preview" />
       <p id="result">Upload an image to analyze</p>
 
       <label for="method">Pickup or Drop-off?</label>
-      <select id="method" name="method" onchange="handlePickup(this.value)" required>
+      <select id="method" onchange="handlePickup(this.value)" required>
         <option value="">-- Please select --</option>
         <option value="dropoff">I will drop off</option>
         <option value="pickup">Please pick up</option>
@@ -227,15 +237,12 @@
 
       <div id="pickupLocation" class="pickup-location">
         <label for="address">Pickup Address</label>
-        <input type="text" id="address" name="address" placeholder="Street, City, ZIP" />
+        <input type="text" id="address" placeholder="Street, City, ZIP" />
       </div>
 
       <button class="submit-btn" onclick="submitDonation()">Submit Donation</button>
 
-      <!-- Success Message -->
-      <div id="successMessage" style="display: none; background-color: #dff0d8; color: #3c763d; padding: 1rem; margin-top: 1rem; border-radius: 8px; font-weight: 600;">
-        🎉 Donation submitted successfully!
-      </div>
+      <div id="successMessage">🎉 Donation submitted successfully!</div>
 
       <div class="quote">“The world changes when kindness becomes action.”</div>
     </div>
@@ -243,23 +250,24 @@
 
   <script>
     let model;
+    let predictedCategory = "";
 
     window.onload = async () => {
       model = await mobilenet.load();
-      console.log("✅ MobileNet loaded");
+      console.log("✅ MobileNet model loaded");
     };
 
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('collapsed');
     }
 
+    function triggerFileInput() {
+      document.getElementById('itemUpload').click();
+    }
+
     function handlePickup(value) {
       const locationField = document.getElementById("pickupLocation");
       locationField.style.display = value === "pickup" ? "block" : "none";
-    }
-
-    function triggerFileInput() {
-      document.getElementById('itemUpload').click();
     }
 
     function handleDragOver(e) {
@@ -270,16 +278,12 @@
     function handleDrop(e) {
       e.preventDefault();
       const file = e.dataTransfer.files[0];
-      if (file) {
-        handleImage(file);
-      }
+      if (file) handleImage(file);
     }
 
     document.getElementById('itemUpload').addEventListener('change', function () {
       const file = this.files[0];
-      if (file) {
-        handleImage(file);
-      }
+      if (file) handleImage(file);
     });
 
     function handleImage(file) {
@@ -298,15 +302,14 @@
           try {
             const predictions = await model.classify(preview);
             if (predictions.length > 0) {
-              const top = predictions[0];
-              result.innerHTML = `
-                🧠 <span style="color:#444">This looks like:</span> <strong>${top.className}</strong><br>
-                <span style="font-size: 0.95rem; color: #777;">(Confidence: ${(top.probability * 100).toFixed(1)}%)</span>
-              `;
+              predictedCategory = predictions[0].className;
+              result.innerHTML = `🧠 <span style="color:#444">This looks like:</span> <strong>${predictedCategory}</strong>`;
             } else {
+              predictedCategory = "";
               result.textContent = "⚠️ Unable to identify the item.";
             }
           } catch (err) {
+            predictedCategory = "";
             result.textContent = "❌ Error during prediction.";
             console.error(err);
           }
@@ -318,43 +321,54 @@
     function submitDonation() {
       const fileInput = document.getElementById('itemUpload');
       const method = document.getElementById('method').value;
-      const addressField = document.getElementById('address');
-      const thankYouMessage = document.getElementById('thankYouMessage');
-  
+      const address = document.getElementById('address').value.trim();
+      const result = document.getElementById('result');
+      const previewImage = document.getElementById('preview').src;
+
       if (!fileInput.files.length) {
         alert("Please upload an image of your item.");
         return;
       }
-  
+
       if (method === "") {
         alert("Please select a donation method.");
         return;
       }
-  
-      if (method === "pickup" && (!addressField.value || addressField.value.trim() === "")) {
+
+      if (method === "pickup" && !address) {
         alert("Please provide a pickup address.");
         return;
       }
-  
-      const successBox = document.getElementById('successMessage');
-      successBox.style.display = 'block';
 
-      setTimeout(() => {
-        window.location.href = "thankyou.html";
-      }, 1000); // 1 second
+      if (!predictedCategory) {
+        alert("Please wait until the image is analyzed.");
+        return;
+      }
 
+      const donation = {
+        id: "donation-" + Date.now(),
+        image: previewImage,
+        category: predictedCategory,
+        method: method,
+        address: method === "pickup" ? address : ""
+      };
 
+      let donations = JSON.parse(localStorage.getItem("donations")) || [];
+      donations.push(donation);
+      localStorage.setItem("donations", JSON.stringify(donations));
 
-      document.getElementById('thankYouMessage').style.display = 'block'; // Show thank you message
-  
-      // Reset form
+      document.getElementById('successMessage').style.display = 'block';
+
+      // Reset
       fileInput.value = '';
       document.getElementById('preview').style.display = 'none';
       document.getElementById('result').textContent = 'Upload an image to analyze';
       document.getElementById('method').value = '';
-      addressField.value = '';
+      document.getElementById('address').value = '';
       document.getElementById('pickupLocation').style.display = 'none';
-      document.getElementById('uploadPlaceholder').style.display = 'block'; // Show upload placeholder
+      document.getElementById('uploadPlaceholder').style.display = 'block';
+
+      predictedCategory = "";
     }
   </script>
 </body>
